@@ -1,0 +1,21 @@
+{
+  "name": "blackjackgame",
+  "version": "1.0.0",
+  "description": "play a blackjack game",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/santoshjoseph99/BlackJackGame.git"
+  },
+  "keywords": [
+    "blackjack",
+    "cards",
+    "game"
+  ],
+  "author": "Santosh Joseph",
+  "license": "MIT",
+  "homepage": "https://github.com/santoshjoseph99/BlackJackGame/blob/master/README.md"
+}
