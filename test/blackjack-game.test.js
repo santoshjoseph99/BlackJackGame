@@ -1,5 +1,5 @@
 
-const BlackjackGame = require('../blackjack-game');
+const BlackjackGame = require('../src/blackjack-game');
 
 var chai = require('chai');
 var sinon = require('sinon');

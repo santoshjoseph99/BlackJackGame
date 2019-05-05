@@ -1,1 +1,1 @@
-require('./lib/blackjack-game');
+require('./src/blackjack-game');
