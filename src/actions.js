@@ -6,6 +6,7 @@ module.exports = {
   BURN_CARD_DOWN: Symbol(21),
   SPLIT: Symbol(2),
   HIT: Symbol(3),
+  BUST: Symbol('bust'),
   STAND: Symbol(4),
   PUSH: Symbol('push'),
   PLACE_BET: Symbol(19),
@@ -24,4 +25,6 @@ module.exports = {
   DEALER_CARD_UP: Symbol(10),
   DEALER_CARD_DOWN: Symbol(17),
   EXPOSE_DEALER_CARD: Symbol(18),
+  SET_END_CARD: Symbol('end_card'),
+  LAST_HAND: Symbol('last_hand')
 }
