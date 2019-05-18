@@ -1,5 +1,5 @@
-const Player = require('../src/player');
-const actions = require('../src/actions');
+const Player = require('../../src/player');
+const actions = require('../../src/actions');
 
 var chai = require('chai');
 var sinon = require('sinon');

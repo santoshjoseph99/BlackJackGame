@@ -1,4 +1,4 @@
-const SixDeckStrategy = require('../src/sixdeck-strategy');
+const SixDeckStrategy = require('../../src/sixdeck-strategy');
 const chai = require('chai');
 const sinon = require('sinon');
 const expect = chai.expect;
