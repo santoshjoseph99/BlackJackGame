@@ -1,186 +1,112 @@
-const defaults = require('lodash/defaults');
-const cloneDeep = require('lodash/cloneDeep');
-const uniq = require('lodash/uniq');
-const Deck = require('deckjs');
-
-class DefaultDeckStrategy {
-  getNumOfDecks(){
-    return 6;
-  }
-  shuffleDeck(cardIdx){
-    return cardIdx >= (52*6)/2;
-  }
-};
-
-class DefaultDoubleDownStrategy {
-  check(card1, card2){
-    return true;
-  }
-};
-
-class DefaultInsuranceStrategy {
-  offerInsurance(upCard, downCard){
-    return upCard.rank === 'a';
-  }
-  insurancePayout(bet){
-    return bet * 2;
-  }
-};
-
-class DefaultDealerStragey {
-  dealCardsUp(){
-    return true;
-  }
-};
-
-class DefaultPayoutStrategy {
-  getPayout(bet, blackjack){
-    return Math.ceil((bet*3)/2);
-  }
-};
-
-class DefaultBetsStrategy {
-  getMin() {
-    return 10;
-  }
-  getMax() {
-    return 100;
-  }
-}
+const defaults = require('lodash/defaults')
+const SixDeckStrategy = require('./sixdeck-strategy')
+const BetsStrategy = require('./bets-strategy')
+const InsuranceStrategy = require('./insurance-strategy')
+const DoubleDownStrategy = require('./doubledown-strategy')
+const DealerStrategy = require('./dealer-strategy')
+const PayoutStrategy = require('./payout-strategy')
+const SplitStrategy = require('./split-strategy')
+const TableStrategy = require('./table-strategy')
+const Dealer = require('./dealer')
+const BlackjackFlow = require('./blackjack-flow')
+const Hand = require('./hand')
+const actions = require('./actions')
+const { Subject } = require('rxjs')
 
 class BlackjackGame {
-
-  /*
-    1. deal:
-      a. burn card
-      b. deal face up 1 card to every player + dealer face up
-      c. deal face up 1 card to every player + dealer face down
-    2. play:
-      a. if dealers upcards is A or T, then insurance is offered
-      b.  if dealer has blackjack then insurance bet are paid out
-          and player bets are collected except when player has natural bj too
-      c.  if no dealer blackjack, then play proceeds from player 1
-      d. dealer plays hand
-    3. payouts:
-      a. dealer collects or pays out
-  */
-
-  constructor(strategies = {}) {
-    this.strategies = {};
-    this.deck = null;
-    this.strategies.insurance = new DefaultInsuranceStrategy();
-    this.strategies.doubleDown = new DefaultDoubleDownStrategy();
-    this.strategies.dealer = new DefaultDealerStragey();
-    this.strategies.payout = new DefaultPayoutStrategy();
-    this.strategies.deck = new DefaultDeckStrategy();
-    this.strategies.bet = new DefaultBetsStrategy();
-    defaults(strategies, this.strategies);
-    this.deck = new Deck(strategies.deck.getNumOfDecks());
+  constructor (strategies = {}) {
+    this.strategies = {}
+    this.strategies.insurance = new InsuranceStrategy()
+    this.strategies.doubleDown = new DoubleDownStrategy()
+    this.strategies.dealer = new DealerStrategy()
+    this.strategies.payout = new PayoutStrategy()
+    this.strategies.deck = new SixDeckStrategy()
+    this.strategies.bet = new BetsStrategy()
+    this.strategies.split = new SplitStrategy()
+    this.strategies.table = new TableStrategy()
+    this.readyToShuffle = false
+    defaults(strategies, this.strategies)
+    this.dealer = new Dealer()
+    this.tableActions = new Subject()
+    this.playerAction = new Subject()
+    this.players = []
+    this.maxPlayers = this.strategies.table.maxPlayers()
+    this.gameFlow = new BlackjackFlow()
   }
 
-  start(callback, players) {
-    if(!this.isGamePlayable(players)) {
-      callback.endGame();
-      return;
+  start () {
+    if (this.getValidPlayers().length === 0) {
+      return false
     }
-    callback.startGame();
-    while(true){
-      this.deck.shuffleDeck();
-      players.forEach(p => callback.startHand(p));
-      this.burnCard();
-      this.dealCards();
-      this.checkForInsurance();
-      players.forEach(p => this.playHand(p, callback));
-      this.payOuts();
-      players.forEach(p => callback.endHand(p));
-      if(!this.isGamePlayable(players)) {
-        break;
+    this.gameFlow.step1(this)
+    this.gameFlow.step2(this)
+    while (!this.readyToShuffle) {
+      this.gameFlow.step3(this)
+      this.gameFlow.step4(this)
+      this.gameFlow.step5(this)
+      this.gameFlow.step6(this)
+    }
+    this.gameFlow.step7(this)
+    return true
+  }
+
+  getValidPlayers () {
+    return this.players.filter(x => x && !x.sittingOut)
+  }
+
+  addPlayer (player, position) {
+    if (position > this.maxPlayers || position < 0) {
+      return new Error(`position must be 1 and ${this.maxPlayers}`)
+    }
+    if (this.players[position]) {
+      return new Error('position not available')
+    }
+    const p = this.players.find(x => player === x.player)
+    if (p) {
+      return new Error('player already is at the table')
+    }
+    this.players[position - 1] = { player }
+  }
+
+  subscribeTableActions (cb) {
+    if (!cb || typeof cb !== 'function') {
+      return new Error('invalid callback')
+    }
+    return this.tableActions.subscribe(cb)
+  }
+
+  subscribePlayerActions (player, cb) {
+    const p = this.players.find(x => player === x.player)
+    if (!p || !cb || typeof cb !== 'function') {
+      return new Error('invalid player or invalid callback')
+    }
+    p.cb = cb
+    return this.playerAction.subscribe(cb)
+  }
+
+  getAvailableActions (player) {
+    const results = []
+    const { cards, money, bet } = player.getInfo()
+
+    if (this.strategies.split.valid(cards)) {
+      if (money >= bet) {
+        results.push(actions.SPLIT)
       }
     }
-    callback.endGame();
-  }
-
-  isGamePlayable(players) {
-
-  }
-
-  burnCard() {
-
-  }
-
-  checkForInsurance() {
-
-  }
-
-  playHand() {
-
-  }
-
-  getCardValue(card) {
-    let cardValue = null;
-    if(this.isCardTen(card)) {
-      cardValue = 10;
-    }
-    if(!cardValue) {
-      cardValue = parseInt(card.rank);
-    }
-    return cardValue;
-  }
-  
-  isAce(card) {
-    return card.rank === 'a';
-  }
-  
-  isCardTen(card) {
-    return card.rank === 't' ||
-           card.rank === 'j' ||
-           card.rank === 'q' ||
-           card.rank === 'k';
-  }
-  
-  isNatural(cards) {
-    if(cards.length > 2) return false;
-    return cards[0].rank === 'a' && this.isCardTen(cards[1]) ||
-           cards[1].rank === 'a' && this.isCardTen(cards[0]);
-  }
-  
-  getHands(cards) {
-    let results = [];
-    this.getHandsHelper(cards, results);
-    if (results.length === 0) results.push(cards);
-    return results;
-  }
-  
-  getHandsHelper(cards, results) {
-    for(let i = 0; i < cards.length; i++) {
-      if(this.isAce(cards[i])) {
-        let cardsLow = cloneDeep(cards);
-        cardsLow[i].rank = '1';
-        let cardsHigh = cloneDeep(cards);
-        cardsHigh[i].rank = '11';
-        if(!cardsLow.find(this.isAce)) {
-          results.push(cardsLow);
-        } else {
-          this.getHandsHelper(cardsLow, results);
-        }
-        if(!cardsHigh.find(this.isAce)){
-          results.push(cardsHigh);
-        } else {
-          this.getHandsHelper(cardsHigh, results);
-        }
+    if (this.strategies.doubleDown.valid(cards)) {
+      if (money > 0) {
+        results.push(actions.DOUBLE_DOWN)
       }
     }
-  }
-  
-  getHandValue(cards) {
-    return cards.reduce((acc, card) => {return acc + this.getCardValue(card)}, 0);
-  }
-  
-  getHandValues(cards) {
-    let handsList = this.getHands(cards);
-    let handValues = handsList.map(list => this.getHandValue(list));
-    return uniq(handValues);
+    const handValues = Hand.getHandValues(cards)
+    if (Hand.hasBlackjack(handValues)) {
+      return
+    }
+    if (!Hand.checkHandBust(handValues)) {
+      results.push(actions.HIT)
+      results.push(actions.STAND)
+    }
   }
 }
 
-module.exports = BlackjackGame;
+module.exports = BlackjackGame
