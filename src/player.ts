@@ -1,9 +1,22 @@
+import IPlayer from "./interfaces/iplayer";
+import { Card } from "deckjs";
+import IPlayerInfo from "./interfaces/iplayerinfo";
+import ITableAction from "./interfaces/itableaction";
+import IPlayerAction from "./interfaces/iplayeraction";
 const actions = require('./actions')
 // const HandHelper = require('./player-hand-helper')
 const Hand = require('./hand')
 
-module.exports = class Player {
-  constructor ({ name, money }) {
+export default class Player implements IPlayer {
+  private pos:number;
+  private money:number;
+  private name:string;
+  private cards:Card[];
+  private currentBet:number;
+  private burnCard:Card;
+  private dealerUpCard:Card;
+
+  constructor (name:string, money:number) {
     this.pos = -1
     this.money = money
     this.name = name
@@ -16,17 +29,17 @@ module.exports = class Player {
   get position () {
     return this.pos
   }
-  getInfo () {
+  public getInfo () :IPlayerInfo {
     return {
-      position: this.position,
-      name: this.name,
-      money: this.money,
-      bet: this.bet,
+      bet: this.currentBet,
       cardHistory: [],
-      cards: ''
+      cards: '',
+      money: this.money,
+      name: this.name,
+      position: this.position,
     }
   }
-  tableAction (data) {
+  public tableAction (data:ITableAction) {
     switch (data.action) {
       case actions.START_GAME:
       case actions.SHUFFLE:
@@ -58,7 +71,7 @@ module.exports = class Player {
         throw new Error('Could not handle action', data.action.toString())
     }
   }
-  playerAction (data) {
+  public playerAction (data:IPlayerAction) {
     switch (data.action) {
       case actions.START_HAND:
         this.cards = []
@@ -66,8 +79,8 @@ module.exports = class Player {
           return null
         }
         this.money -= data.minBet
-        this.bet = data.minBet
-        return this.bet
+        this.currentBet = data.minBet
+        return this.currentBet
       case actions.INSURANCE:
         return null
       case actions.PLAYER_CARD_UP:
@@ -79,7 +92,7 @@ module.exports = class Player {
         this.money += data.amount
         break
       case actions.PUSH:
-        this.money += this.bet
+        this.money += this.currentBet
         break
       case actions.PLAY_HAND:
         if (actions.availableActions.length > 0) {

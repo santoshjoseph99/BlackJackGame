@@ -13,7 +13,7 @@ const Hand = require('./hand')
 const actions = require('./actions')
 const { Subject } = require('rxjs')
 
-class BlackjackGame {
+export default class BlackjackGame {
   constructor (strategies = {}) {
     this.strategies = {}
     this.strategies.insurance = new InsuranceStrategy()
@@ -108,5 +108,3 @@ class BlackjackGame {
     }
   }
 }
-
-module.exports = BlackjackGame
