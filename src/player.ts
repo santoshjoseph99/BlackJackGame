@@ -3,9 +3,8 @@ import { Card } from "deckjs";
 import IPlayerInfo from "./interfaces/iplayerinfo";
 import ITableAction from "./interfaces/itableaction";
 import IPlayerAction from "./interfaces/iplayeraction";
-const actions = require('./actions')
-// const HandHelper = require('./player-hand-helper')
-const Hand = require('./hand')
+import actions from './actions';
+import Hand from './hand';
 
 export default class Player implements IPlayer {
   private pos:number;
@@ -15,6 +14,7 @@ export default class Player implements IPlayer {
   private currentBet:number;
   private burnCard:Card;
   private dealerUpCard:Card;
+  private sittingOut:boolean;
 
   constructor (name:string, money:number) {
     this.pos = -1
@@ -33,7 +33,7 @@ export default class Player implements IPlayer {
     return {
       bet: this.currentBet,
       cardHistory: [],
-      cards: '',
+      cards: [],
       money: this.money,
       name: this.name,
       position: this.position,

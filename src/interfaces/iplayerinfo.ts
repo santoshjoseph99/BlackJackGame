@@ -6,5 +6,5 @@ export default interface IPlayerInfo {
   money: number,
   bet: number,
   cardHistory: Card[],
-  cards: string,
+  cards: Card[],
 }
