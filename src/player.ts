@@ -1,9 +1,23 @@
-const actions = require('./actions')
-// const HandHelper = require('./player-hand-helper')
-const Hand = require('./hand')
+import IPlayer from "./interfaces/iplayer";
+import { Card } from "deckjs";
+import IPlayerInfo from "./interfaces/iplayerinfo";
+import ITableAction from "./interfaces/itableaction";
+import IPlayerAction from "./interfaces/iplayeraction";
+import actions from './actions';
+import Hand from './hand';
+import IPlayerResult from "./interfaces/iplayerresult";
 
-module.exports = class Player {
-  constructor ({ name, money }) {
+export default class Player {
+  private pos:number;
+  private money:number;
+  private name:string;
+  private cards:Card[];
+  private currentBet:number;
+  private burnCard:Card;
+  private dealerUpCard:Card;
+  private sittingOut:boolean;
+
+  constructor (name:string, money:number) {
     this.pos = -1
     this.money = money
     this.name = name
@@ -16,17 +30,17 @@ module.exports = class Player {
   get position () {
     return this.pos
   }
-  getInfo () {
+  public getInfo () :IPlayerInfo {
     return {
-      position: this.position,
-      name: this.name,
-      money: this.money,
-      bet: this.bet,
+      bet: this.currentBet,
       cardHistory: [],
-      cards: ''
+      cards: [],
+      money: this.money,
+      name: this.name,
+      position: this.position,
     }
   }
-  tableAction (data) {
+  public tableAction (data:ITableAction):void|Error {
     switch (data.action) {
       case actions.START_GAME:
       case actions.SHUFFLE:
@@ -55,10 +69,10 @@ module.exports = class Player {
       case actions.END_HAND:
         break
       default:
-        throw new Error('Could not handle action', data.action.toString())
+        throw new Error(`Could not handle action, ${data.action.toString()}`)
     }
   }
-  playerAction (data) {
+  public playerAction (data:IPlayerAction):IPlayerResult|Error {
     switch (data.action) {
       case actions.START_HAND:
         this.cards = []
@@ -66,8 +80,8 @@ module.exports = class Player {
           return null
         }
         this.money -= data.minBet
-        this.bet = data.minBet
-        return this.bet
+        this.currentBet = data.minBet
+        return {amount:this.currentBet}
       case actions.INSURANCE:
         return null
       case actions.PLAYER_CARD_UP:
@@ -79,10 +93,10 @@ module.exports = class Player {
         this.money += data.amount
         break
       case actions.PUSH:
-        this.money += this.bet
+        this.money += this.currentBet
         break
       case actions.PLAY_HAND:
-        if (actions.availableActions.length > 0) {
+        if (data.availableActions.length > 0) {
           const values = Hand.getHandValues(this.cards)
           if (values.some(x => x >= 17)) {
             return { action: actions.STAND }
@@ -95,7 +109,8 @@ module.exports = class Player {
       case actions.END_GAME:
         break
       default:
-        throw new Error('Could not handle action', data.action.toString())
+        throw new Error(`Could not handle action, ${data.action.toString()}`)
     }
+    return {}
   }
 }
