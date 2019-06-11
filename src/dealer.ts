@@ -3,10 +3,7 @@ import IDealer from './interfaces/idealer';
 import { Card } from 'deckjs';
 
 export default class Dealer implements IDealer {
-  private cards:any[];
-  constructor () {
-    this.cards = []
-  }
+  cards:any[] = [];
   public action (action:Actions, data:Card) {
     // console.log('--', action, data)
     if (action === Actions.DEALER_CARD_DOWN ||

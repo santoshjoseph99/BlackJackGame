@@ -5,8 +5,9 @@ import ITableAction from "./interfaces/itableaction";
 import IPlayerAction from "./interfaces/iplayeraction";
 import actions from './actions';
 import Hand from './hand';
+import IPlayerResult from "./interfaces/iplayerresult";
 
-export default class Player implements IPlayer {
+export default class Player {
   private pos:number;
   private money:number;
   private name:string;
@@ -39,7 +40,7 @@ export default class Player implements IPlayer {
       position: this.position,
     }
   }
-  public tableAction (data:ITableAction) {
+  public tableAction (data:ITableAction):void|Error {
     switch (data.action) {
       case actions.START_GAME:
       case actions.SHUFFLE:
@@ -68,10 +69,10 @@ export default class Player implements IPlayer {
       case actions.END_HAND:
         break
       default:
-        throw new Error('Could not handle action', data.action.toString())
+        throw new Error(`Could not handle action, ${data.action.toString()}`)
     }
   }
-  public playerAction (data:IPlayerAction) {
+  public playerAction (data:IPlayerAction):IPlayerResult|Error {
     switch (data.action) {
       case actions.START_HAND:
         this.cards = []
@@ -80,7 +81,7 @@ export default class Player implements IPlayer {
         }
         this.money -= data.minBet
         this.currentBet = data.minBet
-        return this.currentBet
+        return {amount:this.currentBet}
       case actions.INSURANCE:
         return null
       case actions.PLAYER_CARD_UP:
@@ -95,7 +96,7 @@ export default class Player implements IPlayer {
         this.money += this.currentBet
         break
       case actions.PLAY_HAND:
-        if (actions.availableActions.length > 0) {
+        if (data.availableActions.length > 0) {
           const values = Hand.getHandValues(this.cards)
           if (values.some(x => x >= 17)) {
             return { action: actions.STAND }
@@ -108,7 +109,8 @@ export default class Player implements IPlayer {
       case actions.END_GAME:
         break
       default:
-        throw new Error('Could not handle action', data.action.toString())
+        throw new Error(`Could not handle action, ${data.action.toString()}`)
     }
+    return {}
   }
 }

@@ -1,5 +1,6 @@
 import Actions from "../actions";
 
 export default interface IPlayerResult {
-  action:Actions,
+  action?:Actions,
+  amount?:number;
 }

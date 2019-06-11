@@ -1,7 +1,7 @@
 import { TableActionCb, PlayerActionCb } from './interfaces/callbacks';
-import Actions from './Actions';
+import Actions from './actions';
 import IPlayer from "./interfaces/iplayer";
-import { Deck } from "deckjs";
+import { Deck, Card } from "deckjs";
 import IDealer from "./interfaces/idealer";
 
 import defaults from 'lodash/defaults';
@@ -141,9 +141,9 @@ export default class BlackjackGame {
   }
   private step1 () {
     this.tableActions.next({ action: Actions.START_GAME })
-    this.deck.shuffle()
+    this.strategies.deck.shuffleDeck()
     this.tableActions.next({ action: Actions.SHUFFLE })
-    this.deck.setEndIdx(this.strategies.table.getEndDeckIndex())
+    this.strategies.deck.setEndIdx(this.strategies.table.getEndDeckIndex())
     this.tableActions.next({ action: Actions.SET_END_CARD })
     this.strategies.deck.setEndIdx(260)
     this.tableActions.next({
@@ -156,8 +156,8 @@ export default class BlackjackGame {
     this.getValidPlayers().forEach(p => {
       const bet = p.player.cb({
         action: Actions.START_HAND,
+        maxBet: this.strategies.bet.getMax(),
         minBet: this.strategies.bet.getMin(),
-        maxBet: this.strategies.bet.getMax()
       })
       if (!bet) {
         p.sittingOut = true
@@ -178,9 +178,9 @@ export default class BlackjackGame {
     if (this.strategies.insurance.valid(this.dealer.cards[0], this.dealer.cards[1])) {
       this.getValidPlayers().forEach(p => {
         const amount = this.strategies.insurance.amount(p.player.bet)
-        const insuranceAmount = p.player.cb({ action: Actions.INSURANCE, amount })
-        if (insuranceAmount === amount) {
-          p.player.insuranceBet = insuranceAmount
+        const result = p.player.cb({ action: Actions.INSURANCE, amount })
+        if (result.amount === amount) {
+          p.player.insuranceBet = result.amount
         }
       })
     }
@@ -194,9 +194,9 @@ export default class BlackjackGame {
           this.tableActions({ action: Actions.INSURANCE_PAYOUT, player: p })
           p.player.cb({
             action: Actions.INSURANCE_PAYOUT,
-            amount: this.strategies.insurance.payout(p.player.insuranceAmount)
+            amount: this.strategies.insurance.payout(p.player.insuranceBet)
           })
-        } else if (!Hand.isNatural(p.getInfo().cards)) {
+        } else if (!Hand.isNatural(p.player.getInfo().cards)) {
           this.tableActions({ action: Actions.COLLECT_BET, player: p })
           p.player.cb({ action: Actions.COLLECT_BET })
         } else {
@@ -207,7 +207,7 @@ export default class BlackjackGame {
     } else {
       this.getValidPlayers().forEach(p => {
         while (true) {
-          const result = p.player.cb({ action: Actions.PLAY_HAND, availableActions: this.getAvailableActions(p) })
+          const result = p.player.cb({ action: Actions.PLAY_HAND, availableActions: this.getAvailableActions(p.player) })
           switch (result.action) {
             case Actions.STAND:
               this.tableActions({ action: Actions.STAND, player: p })
@@ -227,7 +227,7 @@ export default class BlackjackGame {
               this.tableActions({ action: Actions.DOUBLE_DOWN, player: p })
               p.player.cb({ action: Actions.PLAYER_CARD_UP, card })
               this.tableActions({ action: Actions.PLAYER_CARD_UP, card, player: p })
-              const values2 = Hand.getHandValues(p.cards)
+              const values2 = Hand.getHandValues(p.player.cards)
               if (this.checkHandBust(values2)) {
                 p.player.cb({ action: Actions.BUST })
                 this.tableActions({ action: Actions.BUST, player: p })
@@ -251,7 +251,7 @@ export default class BlackjackGame {
   private checkHandBust (values:number[]) {
     return values.filter(x => x <= 21).length === values.length
   }
-  private getCard (p:IPlayer) {
+  private getCard (p:IPlayer):Card {
     let card = this.strategies.deck.getCard()
     if (!card) {
       this.tableActions.next({ action: Actions.LAST_HAND })
@@ -260,6 +260,7 @@ export default class BlackjackGame {
     }
     p.cb({ action: Actions.PLAYER_CARD_UP, card: card })
     this.tableActions.next({ action: Actions.PLAYER_CARD_UP, card: card, player: p })
+    return card;
   }
   private dealCardsOnce () {
     const dealerCard = this.strategies.deck.getCard()
