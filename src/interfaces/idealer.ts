@@ -1,5 +1,5 @@
-import Actions from "../actions";
 import { Card } from "deckjs";
+import Actions from "../actions";
 
 export default interface IDealer {
   cards:Card[];

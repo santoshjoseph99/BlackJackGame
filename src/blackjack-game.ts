@@ -1,22 +1,22 @@
-import { TableActionCb, PlayerActionCb } from './interfaces/callbacks';
+import { Card, Deck } from "deckjs";
 import Actions from './actions';
-import IPlayer from "./interfaces/iplayer";
-import { Deck, Card } from "deckjs";
+import { PlayerActionCb, TableActionCb } from './interfaces/callbacks';
 import IDealer from "./interfaces/idealer";
+import IPlayer from "./interfaces/iplayer";
 
 import defaults from 'lodash/defaults';
-import SixDeckStrategy from './sixdeck-strategy'
+import { Subject, Subscription } from 'rxjs'
+import actions from './actions'
 import BetsStrategy from './bets-strategy'
-import InsuranceStrategy from './insurance-strategy'
-import DoubleDownStrategy from './doubledown-strategy'
+import Dealer from './dealer'
 import DealerStrategy from './dealer-strategy'
+import DoubleDownStrategy from './doubledown-strategy'
+import Hand from './hand'
+import InsuranceStrategy from './insurance-strategy'
 import PayoutStrategy from './payout-strategy'
+import SixDeckStrategy from './sixdeck-strategy'
 import SplitStrategy from './split-strategy'
 import TableStrategy from './table-strategy'
-import Dealer from './dealer'
-import Hand from './hand'
-import actions from './actions'
-import { Subject, Subscription } from 'rxjs'
 
 interface IAllStrategies {
   insurance: InsuranceStrategy
@@ -136,9 +136,8 @@ export default class BlackjackGame {
     }
     return results;
   }
-  private dealerUpdate(action:Actions){
-
-  }
+  // private dealerUpdate(action:Actions){
+  // }
   private step1 () {
     this.tableActions.next({ action: Actions.START_GAME })
     this.strategies.deck.shuffleDeck()
@@ -258,8 +257,8 @@ export default class BlackjackGame {
       card = this.strategies.deck.getCard()
       this.readyToShuffle = true
     }
-    p.cb({ action: Actions.PLAYER_CARD_UP, card: card })
-    this.tableActions.next({ action: Actions.PLAYER_CARD_UP, card: card, player: p })
+    p.cb({ action: Actions.PLAYER_CARD_UP, card })
+    this.tableActions.next({ action: Actions.PLAYER_CARD_UP, card, player: p })
     return card;
   }
   private dealCardsOnce () {
@@ -273,8 +272,8 @@ export default class BlackjackGame {
         card = this.strategies.deck.getCard()
         this.readyToShuffle = true
       }
-      p.cb({ action: Actions.PLAYER_CARD_UP, card: card })
-      this.tableActions.next({ action: Actions.PLAYER_CARD_UP, card: card, player: p })
+      p.cb({ action: Actions.PLAYER_CARD_UP, card })
+      this.tableActions.next({ action: Actions.PLAYER_CARD_UP, card, player: p })
     })
   }
 }
