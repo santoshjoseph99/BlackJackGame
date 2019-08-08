@@ -1,9 +1,9 @@
+import { Card } from 'deckjs';
 import Actions from './actions';
 import IDealer from './interfaces/idealer';
-import { Card } from 'deckjs';
 
 export default class Dealer implements IDealer {
-  cards:any[] = [];
+  public cards:any[] = [];
   public action (action:Actions, data:Card) {
     // console.log('--', action, data)
     if (action === Actions.DEALER_CARD_DOWN ||
@@ -12,7 +12,7 @@ export default class Dealer implements IDealer {
     } else if (action === Actions.START_HAND) {
       this.cards = []
     } else {
-      console.log('?')
+      throw Error('invalid action');
     }
   }
 }

@@ -1,6 +1,6 @@
+import { Card } from 'deckjs';
 import { PlayerActionCb } from './callbacks';
 import IPlayerInfo from './iplayerinfo';
-import { Card } from 'deckjs';
 
 export default interface IPlayer {
   position:number;

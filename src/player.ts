@@ -1,11 +1,11 @@
-import IPlayer from "./interfaces/iplayer";
 import { Card } from "deckjs";
-import IPlayerInfo from "./interfaces/iplayerinfo";
-import ITableAction from "./interfaces/itableaction";
-import IPlayerAction from "./interfaces/iplayeraction";
 import actions from './actions';
 import Hand from './hand';
+import IPlayer from "./interfaces/iplayer";
+import IPlayerAction from "./interfaces/iplayeraction";
+import IPlayerInfo from "./interfaces/iplayerinfo";
 import IPlayerResult from "./interfaces/iplayerresult";
+import ITableAction from "./interfaces/itableaction";
 
 export default class Player {
   private pos:number;

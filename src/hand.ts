@@ -1,8 +1,8 @@
+import { Card } from 'deckjs';
 import cloneDeep from 'lodash/cloneDeep';
 import uniq from 'lodash/uniq';
-import { Card } from 'deckjs';
-import ISplitStrategy from './interfaces/isplit-strategy';
 import IDoubleDownStrategy from './interfaces/idoubledown-strategy';
+import ISplitStrategy from './interfaces/isplit-strategy';
 
 export default class Hand {
   public static canSplitHand (cards:Card[], strategy:ISplitStrategy) {
