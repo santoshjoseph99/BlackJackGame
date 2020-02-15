@@ -2,14 +2,18 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": { "*": ["types/*"] },
-    "target": "esnext",
-    "outDir": "dist",
-    "module": "es6",
+    "target": "ES2016",
+    "outDir": "./lib",
+    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "noImplicitReturns": true,
     "noImplicitAny": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules/**/*"]
 }

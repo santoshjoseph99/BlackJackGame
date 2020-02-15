@@ -1,0 +1,1 @@
+{"version":3,"file":"payout-strategy.d.ts","sourceRoot":"","sources":["../src/payout-strategy.ts"],"names":[],"mappings":"AAAA,OAAO,eAAe,MAAM,+BAA+B,CAAC;AAE5D,MAAM,CAAC,OAAO,OAAO,cAAe,YAAW,eAAe;IACrD,SAAS,CAAE,GAAG,EAAC,MAAM,EAAE,SAAS,EAAC,OAAO,GAAE,MAAM;CAGxD"}

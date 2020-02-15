@@ -1,7 +1,6 @@
-
-const BlackjackGame = require('../../src/blackjack-game');
-const Player = require('../../src/player');
-const actions = require('../../src/actions');
+const BlackjackGame = require('../../lib/blackjack-game').default;
+const Player = require('../../lib/player').default;
+const actions = require('../../lib/actions').default;
 var chai = require('chai');
 var sinon = require('sinon');
 var expect = chai.expect;
@@ -14,12 +13,6 @@ function createCards(str) {
 }
 
 describe('Blackjack Game', function() {
-  describe('creating game', function() {
-    it('returns an object', function() {
-      const bjgame = new BlackjackGame();
-      expect(bjgame).to.be.not.undefined;
-    });
-  });
   describe('adding players', function() {
     it('invalid position number', function(){
 
@@ -35,7 +28,7 @@ describe('Blackjack Game', function() {
     })
   })
   describe('playing game with no players', function() {
-    it('should not play', function() {
+    it.only('should not play', function() {
       const SUT = new BlackjackGame();
       const result = SUT.start();
       expect(result).to.be.false;
@@ -57,10 +50,10 @@ describe('Blackjack Game', function() {
       SUT.subscribePlayerActions(p1, playerAction)
       SUT.subscribeTableActions(tableActions)
       SUT.step1();
-      expect(tableActionValues[0]).to.be.equal(actions.START_GAME)
-      expect(tableActionValues[1]).to.be.equal(actions.SHUFFLE)
-      expect(tableActionValues[2]).to.be.equal(actions.SET_END_CARD)
-      expect(tableActionValues[3]).to.be.equal(actions.BURN_CARD_UP)
+      expect(tableActionValues[0]).to.be.equal(actions.startGame)
+      expect(tableActionValues[1]).to.be.equal(actions.shuffle)
+      expect(tableActionValues[2]).to.be.equal(actions.setEndCard)
+      expect(tableActionValues[3]).to.be.equal(actions.burnCardUp)
       expect(playerActionValues).to.be.lengthOf(0);
     })
   })
@@ -84,8 +77,8 @@ describe('Blackjack Game', function() {
       SUT.subscribePlayerActions(p1, playerAction)
       SUT.subscribeTableActions(tableActions)
       SUT.step2();
-      expect(tableActionValues[0]).to.be.equal(actions.PLAYER_BET_AMOUNT)
-      expect(playerActionValues[0]).to.be.equal(actions.START_HAND);
+      expect(tableActionValues[0]).to.be.equal(actions.playerBetAmount)
+      expect(playerActionValues[0]).to.be.equal(actions.startHand);
     })
   })
   describe('step3', function() {
@@ -108,8 +101,8 @@ describe('Blackjack Game', function() {
       SUT.subscribePlayerActions(p1, playerAction)
       SUT.subscribeTableActions(tableActions)
       SUT.step2();
-      expect(tableActionValues[0]).to.be.equal(actions.PLAYER_BET_AMOUNT)
-      expect(playerActionValues[0]).to.be.equal(actions.START_HAND);
+      expect(tableActionValues[0]).to.be.equal(actions.playerBetAmount)
+      expect(playerActionValues[0]).to.be.equal(actions.startHand);
     })
   })
   describe('playing game with 1 player', function() {

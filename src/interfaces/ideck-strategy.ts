@@ -5,5 +5,5 @@ export default interface IDeckStrategy {
   shuffleDeck () : void;
   setEndIdx (i:number) : void;
   dealFaceUp () : boolean;
-  getCard () : Card;
+  getCard () : Card|undefined;
 }

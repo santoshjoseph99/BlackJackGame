@@ -1,0 +1,1 @@
+{"version":3,"file":"payout-strategy.js","sourceRoot":"","sources":["../src/payout-strategy.ts"],"names":[],"mappings":";;AAEA,MAAqB,cAAc;IAC1B,SAAS,CAAE,GAAU,EAAE,SAAiB;QAC7C,OAAO,SAAS,CAAC,CAAC,CAAC,IAAI,CAAC,IAAI,CAAC,CAAC,GAAG,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,CAAC,GAAG,CAAA;IACnD,CAAC;CACF;AAJD,iCAIC"}

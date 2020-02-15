@@ -1,0 +1,33 @@
+declare enum Actions {
+    burnCardDown = 0,
+    burnCardup = 1,
+    bust = 2,
+    collectBet = 3,
+    collectInsuranceBet = 4,
+    dealerCardDown = 5,
+    dealerCardUp = 6,
+    doubleDown = 7,
+    endGame = 8,
+    endHand = 9,
+    exposeDealerCard = 10,
+    hit = 11,
+    insurancePayout = 12,
+    insurance = 13,
+    lastHand = 14,
+    payOut = 15,
+    placeBet = 16,
+    playHand = 17,
+    playerBetAmount = 18,
+    playerCardDown = 19,
+    playerCardUp = 20,
+    push = 21,
+    setEndCard = 22,
+    shuffle = 23,
+    split = 24,
+    stand = 25,
+    startGame = 26,
+    startHand = 27,
+    surrender = 28
+}
+export default Actions;
+//# sourceMappingURL=actions.d.ts.map

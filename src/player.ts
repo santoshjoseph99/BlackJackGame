@@ -1,38 +1,37 @@
-import { Card } from "deckjs";
+import { Card, Rank, Suit } from "deckjs";
 import actions from './actions';
 import Hand from './hand';
-import IPlayer from "./interfaces/iplayer";
 import IPlayerAction from "./interfaces/iplayeraction";
 import IPlayerInfo from "./interfaces/iplayerinfo";
 import IPlayerResult from "./interfaces/iplayerresult";
 import ITableAction from "./interfaces/itableaction";
+import { PlayerActionCb } from './interfaces/callbacks';
 
 export default class Player {
-  private pos:number;
-  private money:number;
-  private name:string;
-  private cards:Card[];
-  private currentBet:number;
-  private burnCard:Card;
-  private dealerUpCard:Card;
-  private sittingOut:boolean;
+  position:number;
+  money:number;
+  name:string;
+  sittingOut:boolean;
+  bet:number;
+  insuranceBet:number;
+  cb : PlayerActionCb|undefined;
+  dealerUpCard: Card|undefined;
+  burnCard: Card|undefined;
+  cards:Card[];
 
   constructor (name:string, money:number) {
-    this.pos = -1
-    this.money = money
-    this.name = name
-    this.cards = []
-    this.currentBet = 0
+    this.position = -1
+    this.sittingOut = false;
+    this.money = money;
+    this.name = name;
+    this.cards = [];
+    this.bet = 0;
+    this.insuranceBet = 0;
   }
-  set position (pos) {
-    this.pos = pos
-  }
-  get position () {
-    return this.pos
-  }
+
   public getInfo () :IPlayerInfo {
     return {
-      bet: this.currentBet,
+      bet: this.bet,
       cardHistory: [],
       cards: [],
       money: this.money,
@@ -40,73 +39,79 @@ export default class Player {
       position: this.position,
     }
   }
+
   public tableAction (data:ITableAction):void|Error {
     switch (data.action) {
-      case actions.START_GAME:
-      case actions.SHUFFLE:
-      case actions.SET_END_CARD:
-      case actions.DEALER_CARD_DOWN:
-      case actions.LAST_HAND:
-      case actions.STAND:
-      case actions.HIT:
-      case actions.BUST:
-      case actions.PUSH:
-      case actions.DOUBLE_DOWN:
-      case actions.SPLIT:
+      case actions.startGame:
+      case actions.shuffle:
+      case actions.setEndCard:
+      case actions.dealerCardDown:
+      case actions.lastHand:
+      case actions.stand:
+      case actions.hit:
+      case actions.bust:
+      case actions.push:
+      case actions.doubleDown:
+      case actions.split:
         break
-      case actions.BURN_CARD_UP:
+      case actions.burnCardup:
         this.burnCard = data.card
         break
-      case actions.EXPOSE_DEALER_CARD:
+      case actions.exposeDealerCard:
         this.dealerUpCard = data.card
         break
-      case actions.PLAYER_CARD_UP:
+      case actions.playerCardUp:
         break
-      case actions.END_GAME:
+      case actions.playerCardDown:
+        break;
+      case actions.endGame:
         break
-      case actions.START_HAND:
+      case actions.startHand:
         break
-      case actions.END_HAND:
+      case actions.endHand:
         break
       default:
         throw new Error(`Could not handle action, ${data.action.toString()}`)
     }
   }
-  public playerAction (data:IPlayerAction):IPlayerResult|Error {
+  public playerAction (data:IPlayerAction):IPlayerResult|null|Error {
+    if(!data) {
+      throw new Error('Invalid input')
+    }
     switch (data.action) {
-      case actions.START_HAND:
+      case actions.startHand:
         this.cards = []
-        if (this.money < data.minBet) {
+        if (this.money < (data.minBet|| 0)) {
           return null
         }
-        this.money -= data.minBet
-        this.currentBet = data.minBet
-        return {amount:this.currentBet}
-      case actions.INSURANCE:
+        this.money -= data.minBet || 0
+        this.bet = data.minBet || 0
+        return {amount:this.bet}
+      case actions.insurance:
         return null
-      case actions.PLAYER_CARD_UP:
-        this.cards.push(data.card)
+      case actions.playerCardUp:
+        this.cards.push(data.card || new Card(Rank.Joker, Suit.Joker))
         break
-      case actions.COLLECT_BET:
+      case actions.collectBet:
         break
-      case actions.INSURANCE_PAYOUT:
-        this.money += data.amount
+      case actions.insurancePayout:
+        this.money += data.amount || 0
         break
-      case actions.PUSH:
-        this.money += this.currentBet
+      case actions.push:
+        this.money += this.bet
         break
-      case actions.PLAY_HAND:
-        if (data.availableActions.length > 0) {
+      case actions.playHand:
+        if (data && data.availableActions && data.availableActions.length > 0) {
           const values = Hand.getHandValues(this.cards)
           if (values.some(x => x >= 17)) {
-            return { action: actions.STAND }
+            return { action: actions.stand }
           } else {
-            return { action: actions.HIT }
+            return { action: actions.hit }
           }
         }
         break
-      case actions.END_HAND:
-      case actions.END_GAME:
+      case actions.endHand:
+      case actions.endGame:
         break
       default:
         throw new Error(`Could not handle action, ${data.action.toString()}`)

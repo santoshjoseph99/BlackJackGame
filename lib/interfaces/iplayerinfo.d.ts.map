@@ -1,0 +1,1 @@
+{"version":3,"file":"iplayerinfo.d.ts","sourceRoot":"","sources":["../../src/interfaces/iplayerinfo.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,IAAI,EAAC,MAAM,QAAQ,CAAC;AAE5B,MAAM,CAAC,OAAO,WAAW,WAAW;IAClC,QAAQ,EAAE,MAAM,CAAC;IACjB,IAAI,EAAE,MAAM,CAAC;IACb,KAAK,EAAE,MAAM,CAAC;IACd,GAAG,EAAE,MAAM,CAAC;IACZ,WAAW,EAAE,IAAI,EAAE,CAAC;IACpB,KAAK,EAAE,IAAI,EAAE,CAAC;CACf"}

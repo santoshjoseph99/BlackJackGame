@@ -1,0 +1,1 @@
+{"version":3,"file":"split-strategy.d.ts","sourceRoot":"","sources":["../src/split-strategy.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,IAAI,EAAC,MAAM,QAAQ,CAAC;AAE5B,OAAO,cAAc,MAAM,8BAA8B,CAAC;AAE1D,MAAM,CAAC,OAAO,OAAO,aAAc,YAAW,cAAc;IACnD,KAAK,CAAE,KAAK,EAAC,IAAI,EAAE;CAQ3B"}

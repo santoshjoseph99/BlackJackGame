@@ -1,22 +1,11 @@
-const Player = require('../../src/player');
-const actions = require('../../src/actions');
-
-var chai = require('chai');
-var sinon = require('sinon');
-var expect = chai.expect;
-chai.use(require('chai-subset'));
-chai.use(require('sinon-chai'));
+const Player = require('../../lib/player').default;
+const actions = require('../../lib/actions').default;
+const {expect} = require('chai');
 
 describe('Player', function () {
-  describe('Creation', function () {
-    it('object', function() {
-      const player = new Player();
-      expect(player).to.be.not.undefined;
-    });
-  });
   describe('Position', function () {
     it('sets & gets', function() {
-      const player = new Player();
+      const player = new Player('1', 0);
       expect(player.position).to.be.equal(-1);
       player.position = 1;
       expect(player.position).to.be.equal(1);
@@ -27,28 +16,28 @@ describe('Player', function () {
   });
   describe('Table Actions', function () {
     it('handles start game', function () {
-      const player = new Player();
-      player.tableAction({action: actions.START_GAME});
+      const player = new Player('1', 0);
+      player.tableAction({action: actions.startGame});
       expect(true);
     });
     it('handles end game', function() {
-      const player = new Player();
-      player.tableAction({action: actions.END_GAME});
+      const player = new Player('1', 0);
+      player.tableAction({action: actions.endGame});
       expect(true);
     });
     it('handles start hand', function (){
-      const player = new Player();
-      player.tableAction({action: actions.START_HAND});
+      const player = new Player('1', 0);
+      player.tableAction({action: actions.startHand});
       expect(true);
     });
     it('handles end hand', function (){
-      const player = new Player();
-      player.tableAction({action: actions.END_HAND});
+      const player = new Player('1', 0);
+      player.tableAction({action: actions.endHand});
       expect(true);
     });
     it('handles card down', function () {
-      const player = new Player();
-      player.tableAction({action: actions.PLAYER_CARD_DOWN});
+      const player = new Player('1', 0);
+      player.tableAction({action: actions.playerCardDown});
       expect(true);
     })
   });
