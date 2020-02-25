@@ -5,5 +5,6 @@ export default interface IDeckStrategy {
     setEndIdx(i: number): void;
     dealFaceUp(): boolean;
     getCard(): Card | undefined;
+    setCards(cards: Card[]): void;
 }
 //# sourceMappingURL=ideck-strategy.d.ts.map

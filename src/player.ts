@@ -33,7 +33,7 @@ export default class Player {
     return {
       bet: this.bet,
       cardHistory: [],
-      cards: [],
+      cards: this.cards,
       money: this.money,
       name: this.name,
       position: this.position,
@@ -54,7 +54,7 @@ export default class Player {
       case actions.doubleDown:
       case actions.split:
         break
-      case actions.burnCardup:
+      case actions.burnCardUp:
         this.burnCard = data.card
         break
       case actions.exposeDealerCard:
@@ -103,7 +103,7 @@ export default class Player {
       case actions.playHand:
         if (data && data.availableActions && data.availableActions.length > 0) {
           const values = Hand.getHandValues(this.cards)
-          if (values.some(x => x >= 17)) {
+          if (values.some((x:number) => x >= 17)) {
             return { action: actions.stand }
           } else {
             return { action: actions.hit }

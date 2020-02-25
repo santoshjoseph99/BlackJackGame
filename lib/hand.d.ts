@@ -11,10 +11,12 @@ export default class Hand {
     static hasBlackjack(values: number[]): boolean;
     static isCardTen(card: Card): boolean;
     static isNatural(cards: Card[]): boolean;
-    static checkHandBust(values: number[]): boolean;
+    static isHandBusted(values: number[]): boolean;
     static getHands(cards: Card[]): Card[][];
     static getHandsHelper(cards: Card[], results: Card[][]): void;
     static getHandValue(cards: Card[]): number;
-    static getHandValues(cards: Card[]): number[];
+    static getHandValues(cards: Card[]): any;
+    getHighestNonBustScore(scores: number[]): number;
+    getLowestBustScore(scores: number[]): number;
 }
 //# sourceMappingURL=hand.d.ts.map

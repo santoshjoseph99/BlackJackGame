@@ -6,6 +6,7 @@ export default class SixDeckStrategy implements IDeckStrategy {
     private index;
     private endIndex;
     constructor();
+    setCards(cards: Card[]): void;
     getNumOfDecks(): number;
     shuffleDeck(): void;
     setEndIdx(i: number): void;

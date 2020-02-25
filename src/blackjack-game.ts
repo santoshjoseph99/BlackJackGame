@@ -73,6 +73,10 @@ export default class BlackjackGame {
     this.maxPlayers = this.strategies.table.maxPlayers()
   }
 
+  public setCards(cards:Card[]): void {
+    this.strategies.deck.setCards(cards);
+  }
+
   public start(): boolean {
     if (this.getValidPlayers().length === 0) {
       return false
@@ -90,7 +94,8 @@ export default class BlackjackGame {
   }
 
   public getValidPlayers(): Player[] {
-    return this.players.filter(x => x && !x.sittingOut)
+    // TODO: check money
+    return this.players.filter(x => !x.sittingOut);
   }
 
   public addPlayer(player: Player, position: number): void | Error {
@@ -104,7 +109,6 @@ export default class BlackjackGame {
     if (p) {
       return new Error('player already is at the table')
     }
-    player.sittingOut = true;
     this.players[position - 1] = player
   }
 
@@ -124,24 +128,27 @@ export default class BlackjackGame {
   public getAvailableActions(player: Player): Actions[] {
     const results = []
     const { cards, money, bet } = player.getInfo()
+    const handValues = Hand.getHandValues(cards);
 
-    if (this.strategies.split.valid(cards)) {
-      if (money >= bet) {
-        results.push(actions.split)
-      }
-    }
-    if (this.strategies.doubleDown.valid(cards)) {
-      if (money > 0) {
-        results.push(actions.doubleDown)
-      }
-    }
-    const handValues = Hand.getHandValues(cards)
     if (Hand.hasBlackjack(handValues)) {
-      return []
-    }
-    if (!Hand.checkHandBust(handValues)) {
-      results.push(actions.hit)
-      results.push(actions.stand)
+      results.push(actions.blackjack);
+    } else {
+      if (!Hand.isHandBusted(handValues)) {
+        results.push(actions.hit)
+        results.push(actions.stand)
+        if (this.strategies.split.valid(cards)) {
+          if (money >= bet) {
+            results.push(actions.split)
+          }
+        }
+        if (this.strategies.doubleDown.valid(cards)) {
+          if (money > 0) {
+            results.push(actions.doubleDown);
+          }
+        }
+      } else {
+        results.push(actions.bust);
+      }
     }
     return results;
   }
@@ -155,7 +162,7 @@ export default class BlackjackGame {
     this.tableActions.next({ action: Actions.setEndCard })
     this.strategies.deck.setEndIdx(260)
     this.tableActions.next({
-      action: Actions.burnCardup,
+      action: Actions.burnCardUp,
       card: this.strategies.deck.getCard()
     })
   }
@@ -191,7 +198,7 @@ export default class BlackjackGame {
         if (result?.amount === amount) {
           p.insuranceBet = result.amount
         }
-      })
+      });
     }
   }
   private step5() {
@@ -215,21 +222,26 @@ export default class BlackjackGame {
       })
     } else {
       this.getValidPlayers().forEach(p => {
-        while (true) {
-          const result = p.cb && p.cb({ action: Actions.playHand, availableActions: this.getAvailableActions(p) })
+        let play = true;
+        while (play) {
+          console.log('actions:', this.getAvailableActions(p));
+          const result = p.cb && p.cb({ 
+            action: Actions.playHand,
+            availableActions: this.getAvailableActions(p) 
+          });
           switch (result?.action) {
             case Actions.stand:
-              this.tableActions.next({ action: Actions.stand, player: p })
+              this.tableActions.next({ action: Actions.stand, player: p });
+              play = false;
               break
             case Actions.hit:
               this.tableActions.next({ action: Actions.hit, player: p })
-              const cardHit = this.getCard(p)
-              p.cb && p.cb({ action: Actions.playerCardUp, card: cardHit })
-              this.tableActions.next({ action: Actions.playerCardUp, card: cardHit, player: p })
+              this.getCard(p)
               const values1 = Hand.getHandValues(p.cards)
-              if (this.checkHandBust(values1)) {
+              if (Hand.isHandBusted(values1)) {
                 p.cb && p.cb({ action: Actions.bust })
                 this.tableActions.next({ action: Actions.bust, player: p })
+                play = false;
               }
               break
             case Actions.doubleDown:
@@ -238,10 +250,11 @@ export default class BlackjackGame {
               p.cb && p.cb({ action: Actions.playerCardUp, card })
               this.tableActions.next({ action: Actions.playerCardUp, card, player: p })
               const values2 = Hand.getHandValues(p.cards)
-              if (this.checkHandBust(values2)) {
+              if (Hand.isHandBusted(values2)) {
                 p.cb && p.cb({ action: Actions.bust })
                 this.tableActions.next({ action: Actions.bust, player: p })
               }
+              play = false;
               break
             case Actions.split:
               // TODO
@@ -257,9 +270,6 @@ export default class BlackjackGame {
   }
   private step7() {
     this.tableActions.next({ action: Actions.endGame })
-  }
-  private checkHandBust(values: number[]) {
-    return values.filter(x => x <= 21).length === values.length
   }
   private getCard(p: Player): Card {
     let card = this.strategies.deck.getCard()

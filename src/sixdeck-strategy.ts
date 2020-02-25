@@ -13,6 +13,9 @@ export default class SixDeckStrategy implements IDeckStrategy {
     this.index = 0
     this.endIndex = 0
   }
+  public setCards(cards:Card[]) : void {
+    this.deck.setCards(cards);
+  }
   public getNumOfDecks () : number {
     return this.numDecks
   }

@@ -1,3 +1,4 @@
+import { Card } from "deckjs";
 import Actions from './actions';
 import { PlayerActionCb, TableActionCb } from './interfaces/callbacks';
 import { Subscription } from 'rxjs';
@@ -29,6 +30,7 @@ export default class BlackjackGame {
     private playerAction;
     private strategies;
     constructor(strategies: IAllStrategies);
+    setCards(cards: Card[]): void;
     start(): boolean;
     getValidPlayers(): Player[];
     addPlayer(player: Player, position: number): void | Error;
@@ -43,7 +45,6 @@ export default class BlackjackGame {
     private step5;
     private step6;
     private step7;
-    private checkHandBust;
     private getCard;
     private dealCardsOnce;
 }

@@ -1,8 +1,8 @@
 import { Card, Rank} from 'deckjs';
-import cloneDeep from 'lodash/cloneDeep';
-import uniq from 'lodash/uniq';
+// import _ from 'lodash';
 import IDoubleDownStrategy from './interfaces/idoubledown-strategy';
 import ISplitStrategy from './interfaces/isplit-strategy';
+const _ = require('lodash');
 
 export default class Hand {
   public static canSplitHand (cards:Card[], strategy:ISplitStrategy) {
@@ -51,9 +51,9 @@ export default class Hand {
     return (cards[0].rank === Rank.Ace && Hand.isCardTen(cards[1])) ||
            (cards[1].rank === Rank.Ace && Hand.isCardTen(cards[0]))
   }
-
-  public static checkHandBust (values:number[]) {
-    return values.filter(x => x <= 21).length === values.length
+  
+  public static isHandBusted (values:number[]) {
+    return values.filter(x => x > 21).length === values.length
   }
 
   public static getHands (cards:Card[]) {
@@ -68,9 +68,9 @@ export default class Hand {
   public static getHandsHelper (cards:Card[], results:Card[][]) {
     for (let i = 0; i < cards.length; i++) {
       if (Hand.isAce(cards[i])) {
-        const cardsLow = cloneDeep(cards)
+        const cardsLow = _.cloneDeep(cards)
         cardsLow[i].blackjackValue = 1
-        const cardsHigh = cloneDeep(cards)
+        const cardsHigh = _.cloneDeep(cards)
         cardsHigh[i].blackjackValue = 11
         if (!cardsLow.find(Hand.isAce)) {
           results.push(cardsLow)
@@ -93,6 +93,14 @@ export default class Hand {
   public static getHandValues (cards:Card[]) {
     const handsList = Hand.getHands(cards)
     const handValues = handsList.map(list => Hand.getHandValue(list))
-    return uniq(handValues)
+    return _.uniq(handValues).sort();
+  }
+
+  public getHighestNonBustScore(scores: number[]): number {
+    return _.max(scores.filter(x => x < 22)) || 0;
+  }
+
+  public getLowestBustScore(scores: number[]): number {
+    return _.min(scores.filter(x => x > 21)) || 0;
   }
 }
