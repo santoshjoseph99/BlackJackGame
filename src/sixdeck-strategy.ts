@@ -13,6 +13,9 @@ export default class SixDeckStrategy implements IDeckStrategy {
     this.index = 0
     this.endIndex = 0
   }
+  public setCards(cards:Card[]) : void {
+    this.deck.setCards(cards);
+  }
   public getNumOfDecks () : number {
     return this.numDecks
   }
@@ -27,10 +30,10 @@ export default class SixDeckStrategy implements IDeckStrategy {
   public dealFaceUp () : boolean{
     return true
   }
-  public getCard () : Card {
+  public getCard () : Card|undefined {
     if (this.endIndex === this.index) {
       this.endIndex = 0
-      return null
+      return undefined;
     }
     this.index++
     return this.deck.getCard()

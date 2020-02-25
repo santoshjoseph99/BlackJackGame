@@ -1,25 +1,13 @@
-
-const BlackjackGame = require('../../src/blackjack-game');
-const Player = require('../../src/player');
-const actions = require('../../src/actions');
+const BlackjackGame = require('../../lib/blackjack-game').default;
+const Player = require('../../lib/player').default;
+const actions = require('../../lib/actions').default;
 var chai = require('chai');
 var sinon = require('sinon');
 var expect = chai.expect;
 chai.use(require('chai-subset'));
 chai.use(require('sinon-chai'));
 
-function createCards(str) {
-  let cardRanks = str.split(',');
-  return cardRanks.map(r => {return {rank: r}});
-}
-
 describe('Blackjack Game', function() {
-  describe('creating game', function() {
-    it('returns an object', function() {
-      const bjgame = new BlackjackGame();
-      expect(bjgame).to.be.not.undefined;
-    });
-  });
   describe('adding players', function() {
     it('invalid position number', function(){
 
@@ -41,160 +29,82 @@ describe('Blackjack Game', function() {
       expect(result).to.be.false;
     });
   })
-  describe('step1', function() {
-    it('completes the step', function () {
-      const SUT = new BlackjackGame();
-      const p1 = new Player({name: '', money: 0});
-      SUT.addPlayer(p1, 1);
-      const playerActionValues = [];
-      const tableActionValues = [];
-      function playerAction(game, data) {
-        playerActionValues.push(data.action);
+  describe('1 player', () => {
+    
+  describe.only('player stands, dealer stands', () => {
+    const playerActionValues = [];
+    const tableActionValues = [];
+    const SUT = new BlackjackGame();
+    const p1 = new Player({name: '', money: 0});
+    p1.sittingOut = false;
+    function playerAction(data) {
+      playerActionValues.push(data.action);
+      if(data.action === actions.startHand) {
+        return {};
+      } else if(data.action === actions.playerCardUp) {
+        p1.cards.push(data.card);
+      } else if(data.action === actions.playHand) {
+        if(data.availableActions.find(x => x === actions.hit)) {
+          return {action: actions.hit}
+        }
       }
-      function tableActions(data) {
-        tableActionValues.push(data.action);
-      }
-      SUT.subscribePlayerActions(p1, playerAction)
-      SUT.subscribeTableActions(tableActions)
+    }
+    function tableActions(data) {
+      // console.log(data.action)
+      tableActionValues.push(data.action);
+    }
+    SUT.addPlayer(p1, 1);
+    SUT.subscribePlayerActions(p1, playerAction)
+    SUT.subscribeTableActions(tableActions)
+    SUT.setCards([]);
+    it('step1', function () {
       SUT.step1();
-      expect(tableActionValues[0]).to.be.equal(actions.START_GAME)
-      expect(tableActionValues[1]).to.be.equal(actions.SHUFFLE)
-      expect(tableActionValues[2]).to.be.equal(actions.SET_END_CARD)
-      expect(tableActionValues[3]).to.be.equal(actions.BURN_CARD_UP)
+      expect(tableActionValues[0]).to.be.equal(actions.startGame)
+      expect(tableActionValues[1]).to.be.equal(actions.shuffle)
+      expect(tableActionValues[2]).to.be.equal(actions.setEndCard)
+      expect(tableActionValues[3]).to.be.equal(actions.burnCardUp)
       expect(playerActionValues).to.be.lengthOf(0);
-    })
-  })
-  describe('step2', function() {
-    it('completes the step', function () {
-      const SUT = new BlackjackGame();
-      const p1 = new Player({name: '', money: 0});
-      SUT.addPlayer(p1, 1);
-      const playerActionValues = [];
-      const tableActionValues = [];
-      function playerAction(game, data) {
-        playerActionValues.push(data.action);
-        if(data.action === actions.START_HAND){
-          return 15;
-        }
-        return;
-      }
-      function tableActions(data) {
-        tableActionValues.push(data.action);
-      }
-      SUT.subscribePlayerActions(p1, playerAction)
-      SUT.subscribeTableActions(tableActions)
-      SUT.step2();
-      expect(tableActionValues[0]).to.be.equal(actions.PLAYER_BET_AMOUNT)
-      expect(playerActionValues[0]).to.be.equal(actions.START_HAND);
-    })
-  })
-  describe('step3', function() {
-    it('completes the step', function () {
-      const SUT = new BlackjackGame();
-      const p1 = new Player({name: '', money: 0});
-      SUT.addPlayer(p1, 1);
-      const playerActionValues = [];
-      const tableActionValues = [];
-      function playerAction(game, data) {
-        playerActionValues.push(data.action);
-        if(data.action === actions.START_HAND){
-          return 15;
-        }
-        return;
-      }
-      function tableActions(data) {
-        tableActionValues.push(data.action);
-      }
-      SUT.subscribePlayerActions(p1, playerAction)
-      SUT.subscribeTableActions(tableActions)
-      SUT.step2();
-      expect(tableActionValues[0]).to.be.equal(actions.PLAYER_BET_AMOUNT)
-      expect(playerActionValues[0]).to.be.equal(actions.START_HAND);
-    })
-  })
-  describe('playing game with 1 player', function() {
-    it('should play game', function () {
-      const SUT = new BlackjackGame();
-      const p1 = new Player();
-      SUT.addPlayer(p1, 1);
-      sinon.stub(player.playerAction);
-      sinon.stub(player.tableActions);
-      SUT.subscribePlayerActions(player, p1.playerAction)
-      SUT.subscribeTableActions(player.tableActions)
-      const result = SUT.start();
-      expect(result).to.be.true;
-    })
-  })
-  describe('playing game with multiple players', function() {
-
-  })
-  describe('playing game with 1 valid and multiple non valid players', function() {
-
-  })
-  /*
-  xdescribe('playing game', function() {
-    it('callback: start game', function() {
-      const bjgame = new BlackjackGame();
-      const callback = {
-        startGame: sinon.stub(),
-        startHand: sinon.stub()
-      }
-      bjgame.start(callback, []);
-      expect(callback.startGame).to.be.called;
     });
-    it('callback: start hand for each player', function() {
-      const bjgame = new BlackjackGame();
-      const callback = {
-        startGame: sinon.stub(),
-        startHand: sinon.stub()
-      }
-      let players =[{name: '1'}, {name: '2'}, {name: '3'}];
-      bjgame.start(callback, players);
-      expect(callback.startGame).to.be.called;
-      expect(callback.startHand).to.be.called;
+    it('step2', function () {
+      SUT.step2();
+      expect(tableActionValues[4]).to.be.equal(actions.playerBetAmount);
+      expect(playerActionValues[0]).to.be.equal(actions.startHand);
+    });
+    it('step3', () => {
+      SUT.step3();
+      expect(tableActionValues[5]).to.be.equal(actions.dealerCardDown);
+      expect(tableActionValues[6]).to.be.equal(actions.playerCardUp);
+      expect(tableActionValues[7]).to.be.equal(actions.dealerCardDown);
+      expect(tableActionValues[8]).to.be.equal(actions.playerCardUp);
+      expect(tableActionValues[9]).to.be.equal(actions.exposeDealerCard);
+
+      expect(playerActionValues[1]).to.be.equal(actions.playerCardUp);
+      expect(playerActionValues[2]).to.be.equal(actions.playerCardUp);
+    });
+    it('step4', () => {
+      SUT.step4();
+    });
+    it('step5', () => {
+      SUT.step5();
     });
   });
-  describe('hands', function() {
-    describe('has no aces', function () {
-      it('returns 1 value', function () {
-        const bjgame = new BlackjackGame();
-        let result = bjgame.getHandValues(createCards('3,2'));
-        expect(result[0]).to.equal(5);
-      });
-      it('returns 1 value', function () {
-        const bjgame = new BlackjackGame();
-        let result = bjgame.getHandValues(createCards('j,q,k,t'));
-        expect(result[0]).to.equal(40);
-      });
-      it('returns 1 value', function () {
-        const bjgame = new BlackjackGame();
-        let result = bjgame.getHandValues(createCards('j,q,7,9'));
-        expect(result[0]).to.equal(36);
-      });
-    });
-    describe('has aces', function() {
-      it('returns 2 values', function() {
-        const bjgame = new BlackjackGame();
-        let result = bjgame.getHandValues(createCards('a,3'));
-        expect(result[0]).to.equal(4);
-        expect(result[1]).to.equal(14);
-      });
-      it('returns 3 values', function() {
-        const bjgame = new BlackjackGame();
-        let result = bjgame.getHandValues(createCards('a,3,a'));
-        expect(result[0]).to.equal(5);
-        expect(result[1]).to.equal(15);
-        expect(result[2]).to.equal(25);
-      });
-      it('returns 4 values', function() {
-        const bjgame = new BlackjackGame();
-        let result = bjgame.getHandValues(createCards('a,3,a,a'));
-        expect(result[0]).to.equal(6);
-        expect(result[1]).to.equal(16);
-        expect(result[2]).to.equal(26);
-        expect(result[3]).to.equal(36);
-      });
-    })
+  describe('dealer blackjack', () => {
+
   });
-  */
+  describe('player blackjack', () => {
+
+  });
+  describe('player and dealer blackjack', () => {
+
+  });
+  describe('player and dealer push', () => {
+
+  });
+  describe('player busts', () => {
+
+  });
+  describe('dealer busts', () => {
+
+  });
+  })
 });

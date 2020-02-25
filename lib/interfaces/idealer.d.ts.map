@@ -1,0 +1,1 @@
+{"version":3,"file":"idealer.d.ts","sourceRoot":"","sources":["../../src/interfaces/idealer.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,QAAQ,CAAC;AAC9B,OAAO,OAAO,MAAM,YAAY,CAAC;AAEjC,MAAM,CAAC,OAAO,WAAW,OAAO;IAC9B,KAAK,EAAC,IAAI,EAAE,CAAC;IACb,MAAM,CAAE,MAAM,EAAC,OAAO,EAAE,IAAI,EAAC,IAAI,GAAE,IAAI,CAAC;CACzC"}

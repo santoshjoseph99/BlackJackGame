@@ -1,7 +1,10 @@
 import { Card } from "deckjs";
 import Actions from "../actions";
+import Player from "../player";
 
 export default interface ITableAction {
   action:Actions;
-  card:Card;
+  card?:Card;
+  amount?: number;
+  player?: Player;
 }

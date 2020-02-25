@@ -1,0 +1,1 @@
+{"version":3,"file":"doubledown-strategy.js","sourceRoot":"","sources":["../src/doubledown-strategy.ts"],"names":[],"mappings":";;AAGA,MAAqB,kBAAkB;IAC9B,KAAK,CAAE,KAAY;QACxB,IAAI,KAAK,CAAC,MAAM,GAAG,CAAC,EAAE;YACpB,OAAO,KAAK,CAAA;SACb;QACD,OAAO,IAAI,CAAA;IACb,CAAC;CACF;AAPD,qCAOC"}

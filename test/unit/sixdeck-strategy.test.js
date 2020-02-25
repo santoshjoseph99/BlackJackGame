@@ -1,4 +1,4 @@
-const SixDeckStrategy = require('../../src/sixdeck-strategy');
+const SixDeckStrategy = require('../../lib/sixdeck-strategy').default;
 const chai = require('chai');
 const sinon = require('sinon');
 const expect = chai.expect;
@@ -16,7 +16,7 @@ describe('Six Deck Strategy', () => {
   });
   it('returns null if setEndIdx is not called', () => {
     const SUT = new SixDeckStrategy();
-    expect(SUT.getCard()).to.be.null;
+    expect(SUT.getCard()).to.be.undefined;
   });
   it('returns cards up to setEndIdx', () => {
     const SUT = new SixDeckStrategy();
@@ -24,7 +24,7 @@ describe('Six Deck Strategy', () => {
     for(let i = 0; i < 10; i++) {
       expect(SUT.getCard()).to.exist;
     }
-    expect(SUT.getCard()).to.be.null;
+    expect(SUT.getCard()).to.be.undefined;
   });
   it('shuffles the deck', () => {
     const SUT = new SixDeckStrategy();
